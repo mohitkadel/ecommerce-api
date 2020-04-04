@@ -35,6 +35,14 @@ var userSchema = mongoose.Schema({
                 code: String,
                 discount: Number,
                 exp_time: String,
+            },
+            created_at: {
+                type: Date,
+                default: Date.now
+            },
+            updated_at: {
+                type: Date,
+                default: Date.now
             }
         }
     ],

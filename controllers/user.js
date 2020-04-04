@@ -1,4 +1,5 @@
 const User = require('../models/user.model');
+const { Product } = require('../models/product.model');
 const { check, body, validationResult } = require('express-validator')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt');
@@ -127,7 +128,7 @@ let orderProducts = async function(req, res) {
 			}
 
 			if (order.final_price && typeof order.final_price == "number") {
-				data.final_price = order.final_price;
+				data.final_price = order.quantity * order.final_price;
 			} else {
 				errors.push({ param: "final_price", msg: "No final_price provided" })
 			}
@@ -154,6 +155,9 @@ let orderProducts = async function(req, res) {
 
 			body.push(data);
 		}
+	}
+	else {
+		errors.push({ param: "orders", msg: "Invalid order"})
 	}
 
 
