@@ -7,7 +7,7 @@ var couponSchema = mongoose.Schema({
     },
     discount: Number,
     exp_time: String,
-    quantity: Number,
+    quantity: Number, // Allowed number of times
     status: {
         type: Number,
         default: 1 // 1: Active, 0: InActive
@@ -15,7 +15,8 @@ var couponSchema = mongoose.Schema({
     rules: [
         {
             product_type: String,
-            product_quantity: Number
+            product_quantity: Number,
+            condition: String
         }
     ],
     created_at: {
@@ -32,6 +33,7 @@ var couponSchema = mongoose.Schema({
 couponSchema.pre('save', function(next) {
     const coupon = this;
     if (!coupon.isModified || !coupon.isNew) { // don't rehash if it's an old user
+        coupon.updated_at = new Date();
         next();
     } else {
         next();

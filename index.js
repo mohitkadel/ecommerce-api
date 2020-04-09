@@ -9,8 +9,9 @@ const jwt = require('jsonwebtoken')
 const port = process.env.PORT || 8080;
 
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/fruit', { useNewUrlParser: true});
-// mongoose.connect('mongodb+srv://mohit:mohitkadel@cluster0-o0vsh.mongodb.net/school?retryWrites=true&w=majority', { useNewUrlParser: true});
+mongoose.connect('mongodb+srv://mohit:mohitkadel@cluster0-o0vsh.mongodb.net/fruit?retryWrites=true&w=majority', { useNewUrlParser: true});
+// mongoose.connect('mongodb://localhost/fruit', { useNewUrlParser: true});
+mongoose.set('useFindAndModify', false);
 var db = mongoose.connection;
 
 // Added check for DB connection

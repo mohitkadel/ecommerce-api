@@ -1,4 +1,4 @@
-const { Fruit, Product } = require('../models/product.model');
+const { Fruits, Product } = require('../models/product.model');
 const Coupon = require('../models/coupon.model');
 const { check, body, validationResult } = require('express-validator')
 const jwt = require('jsonwebtoken')
@@ -13,19 +13,19 @@ let validate = function(method) {
 					check('discount').exists(),
 					check('exp_time').exists(),
 					check('quantity').exists(),
-					check('status').exists().custom(value => {
-						if (Fruit.status.indexOf(value) == -1) {
+					check('status').custom(value => {
+						if (value && Fruits().status.indexOf(value) == -1) {
 							return Promise.reject('Invalid status')
 						}
 						return true;
 					}),
 					check('rules').custom(rules => {
-						for(let rule of rules) {
-							if(!rule.product_type || Product.types.indexOf(rule.product_type)) {
+						for (let rule of rules) {
+							if (!rule.product_type || Fruits().types.indexOf(rule.product_type) == -1) {
 								return Promise.reject('Invalid product_type')
 							}
 
-							if(!rule.product_quantity || typeof rule.product_quantity!="number") {
+							if (!rule.product_quantity || typeof rule.product_quantity != "number") {
 								return Promise.reject('Invalid product_quantity')
 							}
 						}
@@ -40,19 +40,19 @@ let validate = function(method) {
 					check('discount').exists(),
 					check('exp_time').exists(),
 					check('quantity').exists(),
-					check('status').exists().custom(value => {
-						if (Fruit.status.indexOf(value) == -1) {
+					check('status').custom(value => {
+						if (value && Fruits().status.indexOf(value) == -1) {
 							return Promise.reject('Invalid status')
 						}
 						return true;
 					}),
 					check('rules').custom(rules => {
-						for(let rule of rules) {
-							if(!rule.product_type || Product.types.indexOf(rule.product_type)) {
+						for (let rule of rules) {
+							if (!rule.product_type || Fruits().types.indexOf(rule.product_type) == -1) {
 								return Promise.reject('Invalid product_type')
 							}
 
-							if(!rule.product_quantity || typeof rule.product_quantity!="number") {
+							if (!rule.product_quantity || typeof rule.product_quantity != "number") {
 								return Promise.reject('Invalid product_quantity')
 							}
 							return true;
@@ -102,7 +102,7 @@ let putCoupon = function(req, res) {
 			coupon.exp_time = req.body.exp_time || coupon.exp_time;
 			coupon.quantity = req.body.quantity || coupon.quantity;
 			coupon.rules = req.body.rules || coupon.rules;
-			
+
 			coupon.save();
 
 			res.status(200).send(coupon);
@@ -122,12 +122,12 @@ let postCoupon = function(req, res) {
 	let coupon = new Coupon(req.body);
 
 	coupon.save(coupon).then(() => {
-		res.status(201).send(coupon);
-	})
-	.catch((error) => {
-		console.log(error)
-		res.status(400).send("Something went wrong");
-	})
+			res.status(201).send(coupon);
+		})
+		.catch((error) => {
+			console.log(error)
+			res.status(400).send("Something went wrong");
+		})
 };
 
 

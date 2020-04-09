@@ -1,4 +1,5 @@
 const User = require('../models/user.model');
+const Coupon = require('../models/coupon.model');
 const { Product } = require('../models/product.model');
 const { check, body, validationResult } = require('express-validator')
 const jwt = require('jsonwebtoken')
@@ -68,14 +69,14 @@ let validate = function(method) {
 			{
 				return [
 					check('password').exists().custom(value => {
-						if(value.length < 6) {
+						if (value.length < 6) {
 							return Promise.reject('Password length shouldn\'t be less then 6 digit')
 						}
 						return true;
 					}),
 					// password must be at least 5 chars long
 					check('newPassword').exists().custom(value => {
-						if(value.length < 6) {
+						if (value.length < 6) {
 							return Promise.reject('New Password length shouldn\'t be less then 6 digit')
 						}
 						return true;
@@ -128,7 +129,7 @@ let orderProducts = async function(req, res) {
 			}
 
 			if (order.final_price && typeof order.final_price == "number") {
-				data.final_price = order.quantity * order.final_price;
+				data.final_price = order.final_price;
 			} else {
 				errors.push({ param: "final_price", msg: "No final_price provided" })
 			}
@@ -155,9 +156,8 @@ let orderProducts = async function(req, res) {
 
 			body.push(data);
 		}
-	}
-	else {
-		errors.push({ param: "orders", msg: "Invalid order"})
+	} else {
+		errors.push({ param: "orders", msg: "Invalid order" })
 	}
 
 
@@ -165,10 +165,12 @@ let orderProducts = async function(req, res) {
 		res.status(422).json({ errors: errors });
 		return;
 	}
-
-	User.findById(req.params.id).then((user) => {
-			user.orders = body;
-			user.save();
+	User.findByIdAndUpdate(req.params.id,  { $push: { orders: { $each: body } } }, {safe: true, upsert: true, new : true}).then(async (user) => {
+			for (let order of user.orders) {
+				let product = await Product.findById(order.product_id);
+				product.quantity -= order.quantity;
+				product.save();
+			}
 
 			res.status(200).send(user);
 		})
